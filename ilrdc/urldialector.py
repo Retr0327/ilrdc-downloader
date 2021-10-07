@@ -102,3 +102,56 @@ class URLCreator:
         """
         urls = map(self.combine_to_url, self.list_of_part_ids)
         return list(urls)
+   
+
+@dataclass
+class URLDialector:
+    """
+    The URLDialector object allows the user to type the dialect name and part, and then generates the request information.
+    If the user only types the dialect name, all the request information will be generated.
+    """
+
+    dialect_ch: str
+    part_ch: Optional[str] = False
+
+    def __post_init__(self) -> None:
+        self.url_list = URLCreator(self.dialect_ch).create()
+
+    def generate_request_info(self, part_url: str) -> dict[str, str]:
+        """The generate_request_info method generates the request info based on the url.
+
+        Args:
+            url (str): the url from the `url_list`
+
+        Returns:
+            a dict: {
+                    "dialect": "泰雅語",
+                    "part_name": "詞彙與構詞",
+                    "part_url": "http://ilrdc.tw/grammar/index.php?l=2&p=3"
+                    }
+        """
+        part_id = re.search("""(?<=\&p\=)\d*""", part_url).group()
+        part_name = {
+            value: key for key, value in ILRDCPart.get_dict_info().items()
+        }.get(int(part_id))
+
+        return {
+            "dialect": self.dialect_ch,
+            "part_name": part_name,
+            "part_url": part_url,
+        }
+
+    def find_particular_request(self, request_info_list, part_name) -> dict[str, str]:
+        """The find_particular_request method finds the specifed information from `request_info_list` via `part_name`."""
+        for info in request_info_list:
+            if info["part_name"] == part_name:
+                return info
+
+    def generate(self) -> Union[dict[str, str], list[dict[str, str]]]:
+        """The generate method generates all the request info. Once the class argument `part_ch` is specified, the chosen
+        request information will be selected from the list."""
+        request_info_list = list(map(self.generate_request_info, self.url_list))
+        if self.part_ch:
+            return self.find_particular_request(request_info_list, self.part_ch)
+        return request_info_list
+
