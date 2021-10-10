@@ -68,3 +68,58 @@ class GrammarCleaner(DataCleaner):
     def extract_data(self) -> map:
         tr_lists = self.table_tag.find_all("tr")
         return map(self.clean_data, tr_lists)
+ 
+
+@dataclass
+class GrammarDownloader(DataDownloader):
+    """
+    The GrammarDownloader object downloads the data in the grammar part.
+    """
+
+    url_dialector: URLDialector
+
+    def __post_init__(self) -> None:
+        self.request_info_list = self.url_dialector.generate()
+
+        if isinstance(self.request_info_list, list):
+            self.request_info_list = self.request_info_list[:-2]
+
+    def extract_grammar_data(self, url: str) -> map:
+        """The extract_grammar_data method extracts the grammar data based on the argument `url`.
+
+        Args:
+            url (str): the grammar url
+
+        Returns:
+            a map object
+        """
+        bsObj = asyncio.run(download_url(url))
+        return GrammarCleaner(bsObj).extract_data()
+
+    def get_data(self, info: dict) -> Union[dict[str, str], str]:
+        """The get_data method gets the data from the argument `info`.
+
+        Args:
+            info (dict): the request info in `self.request_info_list`
+
+        Returns:
+            a dict if the `grammar_data` is not an empty list, a string otherwise
+        """
+        url = info["part_url"]
+        part = info["part_name"]
+        grammar_data = list(self.extract_grammar_data(url))
+        if grammar_data:
+            return {part: grammar_data}
+
+        return f"沒有「{part}」相關資料"
+
+    def download(self) -> Union[dict[str, str], str, list[Union[dict[str, str], str]]]:
+        """The download method downloads the data by mapping `self.request_info_list` into the method `get_data`.
+
+        Returns:
+            a dict if the `self.request_info_list` is not a list, a list otherwise.
+        """
+        if isinstance(self.request_info_list, dict):
+            return self.get_data(self.request_info_list)
+
+        return list(map(self.get_data, self.request_info_list))
