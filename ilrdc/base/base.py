@@ -19,7 +19,7 @@ class DataCleaner(ABC):
 
 class DataDownloader(ABC):
     @abstractmethod
-    def download_content(self, info: dict):
+    def get_data(self, info: dict):
         pass
 
     def download(self):
