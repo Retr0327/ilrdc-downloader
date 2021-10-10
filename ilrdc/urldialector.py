@@ -125,7 +125,6 @@ class URLDialector:
 
         Returns:
             a dict: {
-                    "dialect": "泰雅語",
                     "part_name": "詞彙與構詞",
                     "part_url": "http://ilrdc.tw/grammar/index.php?l=2&p=3"
                     }
@@ -136,13 +135,14 @@ class URLDialector:
         }.get(int(part_id))
 
         return {
-            "dialect": self.dialect_ch,
             "part_name": part_name,
             "part_url": part_url,
         }
 
-    def find_particular_request(self, request_info_list, part_name) -> dict[str, str]:
-        """The find_particular_request method finds the specifed information from `request_info_list` via `part_name`."""
+    def find_particular_request(
+        self, request_info_list: list, part_name: str
+    ) -> dict[str, str]:
+        """The find_particular_request method finds the specifed information from `output` via `part_name`."""
         for info in request_info_list:
             if info["part_name"] == part_name:
                 return info
@@ -151,7 +151,9 @@ class URLDialector:
         """The generate method generates all the request info. Once the class argument `part_ch` is specified, the chosen
         request information will be selected from the list."""
         request_info_list = list(map(self.generate_request_info, self.url_list))
+        
         if self.part_ch:
             return self.find_particular_request(request_info_list, self.part_ch)
+
         return request_info_list
 
