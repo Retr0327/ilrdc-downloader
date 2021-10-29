@@ -1,5 +1,7 @@
+import re 
 from enum import Enum
 from urllib.parse import urljoin
+from typing import Union, Optional
 from dataclasses import dataclass, field
 
 
