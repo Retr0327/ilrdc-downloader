@@ -22,6 +22,6 @@ class DataDownloader(ABC):
     def get_data(self, info: dict):
         pass
     
-    @abstractmethod
+    @abstractmethod 
     def download(self):
         pass
