@@ -1,8 +1,8 @@
 import re
 import pydantic
+from typing import Union, Any
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from typing import Union, Any
 from ilrdc.urldialector import URLDialector
 from ilrdc.base import DataCleaner, DataDownloader
 from ilrdc.util import modify_sound_url, download_url
@@ -93,3 +93,61 @@ class VocabularyCleaner(DataCleaner):
         tr_lists_with_alphabets = self.table_tag.find_all("tr")
         tr_lists = self.remove_alphabet_soup(tr_lists_with_alphabets)
         return map(self.clean_data, tr_lists)
+
+
+@dataclass
+class VocabularyDownloader(DataDownloader):
+    """
+    The VocabularyDownloader object downloads the data in the vocabulary part.
+    """
+
+    url_dialector: URLDialector
+
+    @property
+    def request_info_list(self) -> Union[list[dict[str, str]], dict[str, str]]:
+        """The request_info_list property set the request information list.
+
+        Returns:
+            a dict if a vocabulary part is specified, a list otherwise.
+        """
+        info_list = self.url_dialector.generate()
+        if isinstance(info_list, list):
+            return info_list[-2]
+        return info_list
+
+    def extract_vocabulary_data(self, url: str) -> map:
+        """The extract_vocabulary_data method extracts the vocabulary data based on the argument `url`.
+
+        Args:
+            url (str): the vocabulary url
+
+        Returns:
+            a map object
+        """
+        bsObj = download_url(url)
+        return VocabularyCleaner(bsObj).extract_data()
+
+    def get_data(self, info: dict) -> Union[dict[str, str], str]:
+        """The get_data method gets the data from the argument `info`.
+
+        Args:
+            info (dict): the request info in `self.request_info_list`
+
+        Returns:
+            a dict if the `vocabulary_data` is not an empty list, a string otherwise
+        """
+        url = info["part_url"]
+        part = info["part_name"]
+        vocabulary_data = list(self.extract_vocabulary_data(url))
+        if vocabulary_data:
+            return {part: vocabulary_data}
+
+        return f"沒有「{part}」相關資料"
+
+    def download(self) -> dict[str, str]:
+        """The download method downloads the data by mapping `self.request_info_list` into the method `get_data`.
+
+        Returns:
+            a dict
+        """
+        return self.get_data(self.request_info_list)
