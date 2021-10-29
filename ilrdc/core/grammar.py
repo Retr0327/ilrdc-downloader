@@ -1,7 +1,7 @@
 import re
-import pydantic 
+import pydantic
+from typing import Union
 from bs4 import BeautifulSoup
-from typing import Dict, Union
 from dataclasses import dataclass
 from ilrdc.urldialector import URLDialector
 from ilrdc.base import DataCleaner, DataDownloader
@@ -32,7 +32,7 @@ class GrammarInfo(pydantic.BaseModel):
     def check_content(cls, value):
         """The check_content method makes sure there is Id, dialect or chinese translation value definied"""
         if value is None:
-            return 'not found'
+            return "not found"
         return value
 
 
@@ -47,7 +47,7 @@ class GrammarCleaner(DataCleaner):
     def __post_init__(self) -> None:
         self.table_tag = self.soup.find(class_="template-1")
 
-    def clean_data(self, specified_tag: BeautifulSoup) -> Dict[str, str]:
+    def clean_data(self, specified_tag: BeautifulSoup) -> dict[str, str]:
         """
         Args:
             specified_tag (BeautifulSoup): the specified html tag
@@ -111,7 +111,7 @@ class GrammarDownloader(DataDownloader):
         bsObj = download_url(url)
         return GrammarCleaner(bsObj).extract_data()
 
-    def get_data(self, info: dict):
+    def get_data(self, info: dict) -> Union[dict[str, str], str]:
         """The get_data method gets the data from the argument `info`.
 
         Args:
@@ -128,7 +128,7 @@ class GrammarDownloader(DataDownloader):
 
         return f"沒有「{part}」相關資料"
 
-    def download(self):
+    def download(self) -> Union[dict[str, str], list[dict[str, str]]]:
         """The download method downloads the data by mapping `self.request_info_list` into the method `get_data`.
 
         Returns:
