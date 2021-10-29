@@ -1,8 +1,9 @@
 import re
-import pydantic
+import pydantic 
 from bs4 import BeautifulSoup
+from typing import Dict, Union
 from dataclasses import dataclass
-from typing import Dict
+from ilrdc.urldialector import URLDialector
 from ilrdc.base import DataCleaner, DataDownloader
 from ilrdc.util import modify_sound_url, download_url
 
@@ -25,6 +26,14 @@ class GrammarInfo(pydantic.BaseModel):
             return "沒有音檔"
 
         return modify_sound_url(value)
+
+    @pydantic.validator("Id", "dialect", "chinese_translation")
+    @classmethod
+    def check_content(cls, value):
+        """The check_content method makes sure there is Id, dialect or chinese translation value definied"""
+        if value is None:
+            return 'not found'
+        return value
 
 
 @dataclass
@@ -68,7 +77,7 @@ class GrammarCleaner(DataCleaner):
     def extract_data(self) -> map:
         tr_lists = self.table_tag.find_all("tr")
         return map(self.clean_data, tr_lists)
- 
+
 
 @dataclass
 class GrammarDownloader(DataDownloader):
@@ -78,11 +87,17 @@ class GrammarDownloader(DataDownloader):
 
     url_dialector: URLDialector
 
-    def __post_init__(self) -> None:
-        self.request_info_list = self.url_dialector.generate()
+    @property
+    def request_info_list(self) -> Union[list[dict[str, str]], dict[str, str]]:
+        """The request_info_list property set the request information list.
 
-        if isinstance(self.request_info_list, list):
-            self.request_info_list = self.request_info_list[:-2]
+        Returns:
+            a dict if a grammar part is specified, a list otherwise.
+        """
+        info_list = self.url_dialector.generate()
+        if isinstance(info_list, list):
+            return info_list[:-2]
+        return info_list
 
     def extract_grammar_data(self, url: str) -> map:
         """The extract_grammar_data method extracts the grammar data based on the argument `url`.
@@ -93,10 +108,10 @@ class GrammarDownloader(DataDownloader):
         Returns:
             a map object
         """
-        bsObj = asyncio.run(download_url(url))
+        bsObj = download_url(url)
         return GrammarCleaner(bsObj).extract_data()
 
-    def get_data(self, info: dict) -> Union[dict[str, str], str]:
+    def get_data(self, info: dict):
         """The get_data method gets the data from the argument `info`.
 
         Args:
@@ -113,7 +128,7 @@ class GrammarDownloader(DataDownloader):
 
         return f"沒有「{part}」相關資料"
 
-    def download(self) -> Union[dict[str, str], str, list[Union[dict[str, str], str]]]:
+    def download(self):
         """The download method downloads the data by mapping `self.request_info_list` into the method `get_data`.
 
         Returns:
@@ -121,5 +136,4 @@ class GrammarDownloader(DataDownloader):
         """
         if isinstance(self.request_info_list, dict):
             return self.get_data(self.request_info_list)
-
         return list(map(self.get_data, self.request_info_list))
