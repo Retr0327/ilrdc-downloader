@@ -41,15 +41,6 @@ class StoryCleaner(DataCleaner):
     def __post_init__(self) -> None:
         self.table_tag = self.soup.find("div", id="part_19")
 
-    def remove_empty_dict(self, result: Generator) -> Generator[None, None, str]:
-        """The remove_empty_dict method removes the dictionary with the empty value in each key.
-        Args:
-            result (map): the result after mapping `tr_lists` to the method `self.extract_data`.
-        Returns:
-            a generator.
-        """
-        return (story_dict for story_dict in result if story_dict.get("dialect") != "")
-
     def clean_data(self, specified_tag: BeautifulSoup) -> dict[str, str]:
         """The extract_data method extracts the data from the html.
 
@@ -76,7 +67,7 @@ class StoryCleaner(DataCleaner):
     def extract_data(self) -> Generator[None, None, dict]:
         tr_lists = self.table_tag.find_all("tr")
         result = map(self.clean_data, tr_lists)
-        return self.remove_empty_dict(result)
+        return result
 
 
 @dataclass
@@ -109,9 +100,9 @@ class StoryDownloader(DataDownloader):
             a list containing the title index in the argument `story_list`.
         """
         title_index = [
-            num
+            num - 1
             for num, story_dict in enumerate(story_list)
-            if story_dict.get("sound_url") == "沒有音檔"
+            if story_dict.get("dialect") == ""
         ]
         final_index = len(story_list)
         title_index.append(final_index)
@@ -132,7 +123,7 @@ class StoryDownloader(DataDownloader):
         while True:
             story = {
                 data[title_index[index_num]].get("chinese_translation"): data[
-                    title_index[index_num] + 1 : title_index[index_num + 1]
+                    title_index[index_num] + 2 : title_index[index_num + 1]
                 ]
             }
             stories_list.append(story)
