@@ -12,6 +12,6 @@ def download_url(url: str) -> BeautifulSoup:
     Returns:
         a BeautifulSoup object
     """
-    req = requests.get(url, headers={"user-agent": UserAgent.google()})
+    req = requests.get(url, headers={"user-agent": UserAgent().google})
     soup = BeautifulSoup(req.text, "lxml")
     return soup
