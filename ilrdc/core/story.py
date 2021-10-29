@@ -77,3 +77,106 @@ class StoryCleaner(DataCleaner):
         tr_lists = self.table_tag.find_all("tr")
         result = map(self.clean_data, tr_lists)
         return self.remove_empty_dict(result)
+
+
+@dataclass
+class StoryDownloader(DataDownloader):
+    """
+    The StoryDownloader object downloads the data in the story part.
+    """
+
+    url_dialector: URLDialector
+
+    @property
+    def request_info_list(self) -> Union[list[dict[str, str]], dict[str, str]]:
+        """The request_info_list property set the request information list.
+
+        Returns:
+            a dict if a story part is specified, a list otherwise.
+        """
+        info_list = self.url_dialector.generate()
+        if isinstance(info_list, list):
+            return info_list[-1]
+        return info_list
+
+    def find_title_index(self, story_list: list) -> list[int]:
+        """The find_title_index method finds the title, stored as a dictionary, from the argument `story_list`.
+
+        Args:
+            story_list (list): the story_list that comes from adding `self.story_request_info` to the method `self.download_content()'
+
+        Returns:
+            a list containing the title index in the argument `story_list`.
+        """
+        title_index = [
+            num
+            for num, story_dict in enumerate(story_list)
+            if story_dict.get("sound_url") == "沒有音檔"
+        ]
+        final_index = len(story_list)
+        title_index.append(final_index)
+        return title_index
+
+    def get_each_story(self, data: list) -> list[dict[str, str]]:
+        """The get_each_story method finds each story from the argument `data`.
+
+        Args:
+            data (list): the data that comes from adding `self.story_request_info` to the method `self.download_content()'
+
+        Returns:
+            a list
+        """
+        title_index = self.find_title_index(data)
+        index_num = 0
+        stories_list = []
+        while True:
+            story = {
+                data[title_index[index_num]].get("chinese_translation"): data[
+                    title_index[index_num] + 1 : title_index[index_num + 1]
+                ]
+            }
+            stories_list.append(story)
+            index_num += 1
+            if index_num == len(title_index) - 1:
+                break
+        return stories_list
+
+    def extract_story_data(self, url: str) -> map:
+        """The extract_story_data method extracts the story data based on the argument `url`.
+
+        Args:
+            url (str): the story url
+
+        Returns:
+            a map object
+        """
+        bsObj = download_url(url)
+        return StoryCleaner(bsObj).extract_data()
+
+    def get_data(self, info: dict) -> Union[dict[str, str], str]:
+        """The get_data method gets the data from the argument `info`.
+
+        Args:
+            info (dict): the request info in `self.request_info_list`
+
+        Returns:
+            a dict if the `story_data` is not an empty list, a string otherwise
+        """
+        url = info["part_url"]
+        part = info["part_name"]
+        story_data = list(self.extract_story_data(url))
+        if story_data:
+            return {part: story_data}
+
+        return f"沒有「{part}」相關資料"
+
+    def download(self) -> dict[str, list]:
+        """The download method downloads the data by mapping `self.request_info_list` into the method `get_data`.
+
+        Returns:
+            a dict
+        """
+        result = self.get_data(self.request_info_list)
+        stories = self.get_each_story(result["長篇語料"])
+        result["長篇語料"] = stories
+        return result
