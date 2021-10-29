@@ -69,45 +69,45 @@ Use the method `.get_info()` on `ILRDCDialect` and `ILRDCPart` to get all the in
 #### Examples:
 - Select Grammar Part:
 
-    Pass the string `'g'` to the parameter `part_type`:
+    Pass the string `'grammar'` to the parameter `part_type`:
 
     ```python
-    ILRDC('泰雅語', part_type='g')
+    ILRDC('泰雅語', part_type='grammar')
     ```
     Without specifing the parameter `part`, the class will include all the grammar parts (i.e. from 詞彙與構詞 to 標點符號). On the other hand, if you want to select a particular grammar part, pass one of the grammar part's name as a string to the parameter `part`:
 
     ```python
-    ILRDC('泰雅語', part_type='g', part='否定句結構')
+    ILRDC('泰雅語', part_type='grammar', part='否定句結構')
     ```
 - Select Vocabulary Part:
     
-  Pass the string `'v'` to the parameter `part_type`:
+  Pass the string `'vocab'` to the parameter `part_type`:
 
     ```python
-    ILRDC('泰雅語', part_type='v')
+    ILRDC('泰雅語', part_type='vocab')
     ```
     Since there is only one part for Vocabulary, you don't need to pass the string `'基本詞彙'` to the parameter `part`. If you insist, you can still specify:
     
     ```python
-    ILRDC('泰雅語', part_type='v', part='基本詞彙')
+    ILRDC('泰雅語', part_type='vocab', part='基本詞彙')
     ```
 - Select Story Part:
     
-  Pass the string `'s'` to the parameter `part_type`:
+  Pass the string `'story'` to the parameter `part_type`:
 
     ```python
-    ILRDC('泰雅語', part_type='s')
+    ILRDC('泰雅語', part_type='story')
     ```
     Since there is only one part for Story, you don't need to pass the string `'長篇語料'` to the parameter `part`. If you insist, you can still specify:
     
     ```python
-    ILRDC('泰雅語', part_type='v', part='長篇語料')
+    ILRDC('泰雅語', part_type='story', part='長篇語料')
     ```
 ### 3. Print out the data: 
 After filling in and instantiating the `ILRDC` class, you can use `.data` to access the class attribute value. For example:
 
 ```python
-ILRDC('泰雅語', part_type='g', part='基本句型及詞序').data
+ILRDC('泰雅語', part_type='grammar', part='基本句型及詞序').data
 ```
 This prints:
 ```python
@@ -128,14 +128,14 @@ This prints:
 After filling in and instantiating the ILRDC class, you can use the method `.to_json()` convert all the data to a JSON file.
 
 ```python
-ILRDC('泰雅語', part_type='v').to_json()
+ILRDC('泰雅語', part_type='vocab').to_json()
 ```
 
 ### 5. Write object to a CSV file: 
 After filling in and instantiating the ILRDC class, you can use the method `.to_csv()` convert all the data to a comma-separated values (CSV) file.
 
 ```python
-ILRDC('泰雅語', part_type='v').to_csv()
+ILRDC('泰雅語', part_type='vocab').to_csv()
 ```
 
 ## Contact Me
