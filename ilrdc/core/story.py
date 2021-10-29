@@ -166,7 +166,7 @@ class StoryDownloader(DataDownloader):
         part = info["part_name"]
         story_data = list(self.extract_story_data(url))
         if story_data:
-            return {part: story_data}
+            return story_data
 
         return f"沒有「{part}」相關資料"
 
@@ -177,6 +177,5 @@ class StoryDownloader(DataDownloader):
             a dict
         """
         result = self.get_data(self.request_info_list)
-        stories = self.get_each_story(result["長篇語料"])
-        result["長篇語料"] = stories
-        return result
+        stories = self.get_each_story(result)
+        return stories
