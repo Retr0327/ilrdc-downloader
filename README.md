@@ -138,5 +138,54 @@ After filling in and instantiating the ILRDC class, you can use the method `.to_
 ILRDC('泰雅語', part_type='vocab').to_csv()
 ```
 
+---
+## **Tidbit: Downloading grammar, vocabulary, and story of all the languages at the same time**
+
+### 1. in .py file:
+```python
+import asyncio 
+from ilrdc import ILRDC, ILRDCDialect
+
+
+async def download(langauge, part_type):
+    return ILRDC(langauge, part_type=part_type).to_json()
+
+
+async def main():
+    languages = ILRDCDialect.get_list_info()
+    task_grammar = [download(language, part_type='grammar') for language in languages]
+    task_vocab = [download(language, part_type='vocab') for language in languages]
+    task_story = [download(language, part_type='story') for language in languages]
+    return await asyncio.gather(*task_grammar, *task_vocab, *task_story)
+
+asyncio.run(main())
+
+```
+### 2. in .ipynb file:
+```python
+import asyncio
+import nest_asyncio
+from ilrdc import ILRDC, ILRDCDialect
+
+
+nest_asyncio.apply()
+
+
+async def download(langauge, part_type):
+    return ILRDC(langauge, part_type=part_type).to_json()
+
+
+async def main():
+    languages = ILRDCDialect.get_list_info()
+    task_grammar = [download(language, part_type='grammar') for language in languages]
+    task_vocab = [download(language, part_type='vocab') for language in languages]
+    task_story = [download(language, part_type='story') for language in languages]
+    return await asyncio.gather(*task_grammar, *task_vocab, *task_story)
+
+asyncio.run(main())
+
+```
+
+
 ## Contact Me
 If you have any suggestion or question, please do not hesitate to email me at r07142010@g.ntu.edu.tw
