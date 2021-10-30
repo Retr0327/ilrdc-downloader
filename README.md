@@ -104,10 +104,10 @@ Use the method `.get_info()` on `ILRDCDialect` and `ILRDCPart` to get all the in
     ILRDC('泰雅語', part_type='story', part='長篇語料')
     ```
 ### 3. Print out the data: 
-After filling in and instantiating the `ILRDC` class, you can use `.data` to access the class attribute value. For example:
+After filling in and instantiating the `ILRDC` class, you can use `.download_data()`. For example:
 
 ```python
-ILRDC('泰雅語', part_type='grammar', part='基本句型及詞序').data
+ILRDC('泰雅語', part_type='grammar', part='基本句型及詞序').download_data()
 ```
 This prints:
 ```python
