@@ -14,11 +14,11 @@ If you don't know which dialect or which part of data you want to download, you 
 ``` python
 from ilrdc import ILRDC, ILRDCDialect, ILRDCPart
 ```
-Use the method `.get_info()` on `ILRDCDialect` and `ILRDCPart` to get all the information:
+Use the method `.get_list_info()` on `ILRDCDialect` and `ILRDCPart` to get all the information:
 - To get information of dialects:
 
     ```python
-    ILRDCDialect.get_info()
+    ILRDCDialect.get_list_info()
     ```
     This prints:
     ```python
@@ -36,7 +36,7 @@ Use the method `.get_info()` on `ILRDCDialect` and `ILRDCPart` to get all the in
 - To get information of the parts:
 
     ```python
-    ILRDCPart.get_info()
+    ILRDCPart.get_list_info()
     ```
     This prints:
     ```python
